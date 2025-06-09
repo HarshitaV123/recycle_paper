@@ -9,7 +9,7 @@ height = 700
 pygame.init()
 
 pygame.display.set_caption("Recycle Game")
-screen = pygame.display.set_mode(width, height)
+screen = pygame.display.set_mode((width, height))
 
 def changeBackground(img):
     background = pygame.image.load(img)
@@ -56,3 +56,56 @@ for i in range(20):
     
 bin = Player()
 all_sprites.add(bin)
+white = (255,255,255)
+red = (255,0,0)
+playing = True
+score = 0
+clock = pygame.time.Clock()
+start_time = time.time()
+my_font = pygame.font.SysFont("Arial",20)
+time_font = pygame.font.SysFont("Times New Roman",20)
+text = my_font.render("Score = " + str(0),True,white)
+while playing:
+    clock.tick(30)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            playing = False
+    time_elapsed = time.time() - start_time
+    if time_elapsed >= 60:
+        if score > 50:
+            text = my_font.render("Bin Loot Successful",True,red)
+            changeBackground("images\win_screen.jpg")
+        else:
+            text = my_font.render("Better Luck Next Time",True, white)
+            changeBackground("images\lose_screen.jpg")
+        screen.blit(text,(250,40))
+    else:
+        changeBackground("images\\bg.png")
+        countdown = time_font.render("Time left"+str(60-int(time_elapsed)),True,white)
+        screen.blit(countdown,(20,10))
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_UP]:
+            if bin.rect.y > 0:
+                bin.rect.y -= 5
+        if keys[pygame.K_DOWN]:
+            if bin.rect.y < 650:
+                bin.rect.y += 5
+        if keys[pygame.K_RIGHT]:
+            if bin.rect.x < 850:
+                bin.rect.x += 5
+        if keys[pygame.K_LEFT]:
+            if bin.rect.x > 0:
+                bin.rect.x -= 5
+        item_hit_list = pygame.sprite.spritecollide(bin,item_list,True)
+        plastic_hit_list = pygame.sprite.spritecollide(bin,plastic_list,True)
+        for item in item_hit_list:
+            score += 1
+            text = my_font.render("Score = " + str(score),True,white)
+        for plastic in plastic_hit_list:
+            score -= 5
+            text = my_font.render("Score = " + str(score),True,white)
+        screen.blit(text,(20,50))
+        all_sprites.draw(screen)
+    pygame.display.update()
+
+
